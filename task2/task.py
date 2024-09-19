@@ -66,7 +66,7 @@ class Tree:
 
 def main(var: str):
     tree = Tree(var)
-    print(tree.task2_result)
+    print(tree.parents)
 
 if __name__ == "__main__":
     main(input1)
