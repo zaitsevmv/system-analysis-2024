@@ -63,10 +63,23 @@ class Tree:
             self.task2_result[key][3] = count_parents(key) - len(self.parents[key])
             for parent in self.parents[key]:
                 self.task2_result[key][4] += (len(self.map_representation[parent]) - 1)
+        
+    def calc_entropy(self):
+        n = len(self.task2_result)
+        print(n)
+        print(self.task2_result)
+        H = 0
+        for key, item in self.task2_result.items():
+            for val in item:
+                if val > 0:
+                    H -= val*math.log2(val/(n-1))
+        H /= (n-1)
+        return H
+
 
 def main(var: str):
     tree = Tree(var)
-    print(tree.task2_result)
+    print(tree.calc_entropy())
 
 if __name__ == "__main__":
-    main(input1)
+    main(input)
