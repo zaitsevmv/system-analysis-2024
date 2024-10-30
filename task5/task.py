@@ -17,6 +17,20 @@ json_string_B = '[[1,2],[3,4,5],6,7,9,[8,10]]'
 json_string_C = '[3,[1,4],2,6,[5,7,8],[9,10]]'
 
 
+def get_diff(data, data_np):
+    result = []
+    i = 0
+    j = 0
+    for key in data.keys():
+        for key1 in data.keys():
+            if data_np[i][j] == 0:
+                result.append({key, key1})
+            j += 1
+        i += 1
+        j = 0
+    return list(set(frozenset(i) for i in result))
+
+
 class Task:
     data = {}
     np_data = {}
@@ -89,23 +103,26 @@ class Task:
         return result
         
     def arrange(self, obj1: str, obj2: str):
-        if self.data[obj1].keys() != self.data[obj2].keys():
+        if set(self.data[obj1].keys()) != set(self.data[obj2].keys()):
+            print('here')
+            print(set(self.data[obj1].keys()))
+            print(set(self.data[obj2].keys()))
             return None
         
         Y_12 = self.np_data[obj1]*self.np_data[obj2]
         Y_T_12 = self.T_np_data[obj1]*self.T_np_data[obj2]
         result = np.logical_or(Y_12.astype(bool), Y_T_12.astype(bool)).astype(int)
-        result = {}
-
+        obj1_2 = {}
         i = 0
         for key1 in self.data[obj1].keys():
-            result[key1] = {}
+            obj1_2[key1] = {}
             j = 0
             for key2 in self.data[obj1].keys():
-                result[key1][key2] = int(Y_12[i][j])
+                obj1_2[key1][key2] = int(Y_12[i][j])
                 j += 1
             i += 1
-        return result
+        return obj1_2, get_diff(self.data[obj1], result)               
+
 
 def main(input1: str, input2: str):
     data_A = json.loads(input1)
@@ -113,9 +130,9 @@ def main(input1: str, input2: str):
     task = Task()
     task.add_object(data_B, 'B')
     task.add_object(data_A, 'A')
-    
-    ans = task.arrange('A', 'B')
-    print(task.recreate_from_matrix(ans))
+    ans, diff = task.arrange('A', 'B')
+    print("f(A, B) =", task.recreate_from_matrix(ans))
+    print("Differences -", diff)
 
 
 if __name__ == "__main__":
