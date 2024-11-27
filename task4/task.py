@@ -1,48 +1,41 @@
-import json
+import csv
+import numpy as np
 
-input = '''
-{
-    "data":{
-        "18-24": {
-            "Электроника": 20,
-            "Одежда": 15,
-            "Книги": 10,
-            "Обувь": 5
-            },
-        "25-34": {
-            "Электроника": 30,
-            "Одежда": 20,
-            "Книги": 15,
-            "Обувь": 10
-            },
-        "35-44": {
-            "Электроника": 25,
-            "Одежда": 25,
-            "Книги": 20,
-            "Обувь": 15
-            },
-        "45-54": {
-            "Электроника": 20,
-            "Одежда": 20,
-            "Книги": 25,
-            "Обувь": 20
-            },
-        "54+": {
-            "Электроника": 15,
-            "Одежда": 15,
-            "Книги": 30,
-            "Обувь": 25
-            },
-    }
-}
-'''
 
-def H(data: dict):
-    s = sum(data.values())
-    return sum([p/s for p in data.values()])
+input = '''Возрастная группа;Электроника;Одежда;Книги;Обувь
+18-24;20;15;10;5
+25-34;30;20;15;10
+35-44;25;25;20;15
+45-54;20;20;25;20
+55 плюс;15;15;30;25'''
 
-def main():
-    H()
+
+def solve(data: np.array):
+    row_sums = np.sum(data, axis=1)
+    total_sum = np.sum(row_sums)
+
+    prob_matrix = np.zeros_like(data, dtype=float)
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            prob_matrix[i, j] = data[i, j] / total_sum if total_sum != 0 else 0
+
+    p_a = np.sum(prob_matrix, axis=1)
+    p_b = np.sum(prob_matrix, axis=0)
+    
+    h_ab = -np.sum(prob_matrix[prob_matrix > 0] * np.log2(prob_matrix[prob_matrix > 0]))
+    h_a = -np.sum(p_a[p_a > 0] * np.log2(p_a[p_a > 0]))
+    h_b = -np.sum(p_b[p_b > 0] * np.log2(p_b[p_b > 0]))
+
+    h_b_a = h_ab - h_a
+    i_b_a = h_b - h_b_a
+    return np.array([h_ab, h_a, h_b, h_b_a, i_b_a])
+
+
+def main(input):
+    parser = csv.reader(input.strip().splitlines()[1:], delimiter=";")
+    data = np.array([list(map(int, row[1:])) for row in parser])
+    result = solve(data)
+    print(result)
     
 if __name__ == "__main__":
-    main()
+    main(input)
